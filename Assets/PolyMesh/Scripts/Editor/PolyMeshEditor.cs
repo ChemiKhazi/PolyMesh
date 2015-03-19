@@ -107,6 +107,12 @@ public class PolyMeshEditor : Editor
 				polyMesh.curveDetail = curveDetail;
 			}
 
+			var vertexColor = EditorGUILayout.ColorField("Vertex Color", polyMesh.vertexColor);
+			if (GUI.changed)
+			{
+				polyMesh.vertexColor = vertexColor;
+			}
+
 			//Buttons
 			EditorGUILayout.BeginHorizontal();
 			if (GUILayout.Button("Build Mesh"))
@@ -342,89 +348,89 @@ public class PolyMeshEditor : Editor
 		switch (state)
 		{
 			//Hovering
-		case State.Hover:
+			case State.Hover:
 
-			DrawNearestLineAndSplit();
+				DrawNearestLineAndSplit();
 
-			if (Tools.current == Tool.Move && TryDragSelected())
-				return State.DragSelected;
-			if (Tools.current == Tool.Rotate && TryRotateSelected())
-				return State.RotateSelected;
-			if (Tools.current == Tool.Scale && TryScaleSelected())
-				return State.ScaleSelected;
-			if (Tools.current == Tool.Move && TryExtrude())
-				return State.Extrude;
+				if (Tools.current == Tool.Move && TryDragSelected())
+					return State.DragSelected;
+				if (Tools.current == Tool.Rotate && TryRotateSelected())
+					return State.RotateSelected;
+				if (Tools.current == Tool.Scale && TryScaleSelected())
+					return State.ScaleSelected;
+				if (Tools.current == Tool.Move && TryExtrude())
+					return State.Extrude;
 
-			if (TrySelectAll())
-				return State.Hover;
-			if (TrySplitLine())
-				return State.Hover;
-			if (TryDeleteSelected())
-				return State.Hover;
+				if (TrySelectAll())
+					return State.Hover;
+				if (TrySplitLine())
+					return State.Hover;
+				if (TryDeleteSelected())
+					return State.Hover;
 
-			if (TryHoverCurvePoint(out dragIndex) && TryDragCurvePoint(dragIndex))
-				return State.Drag;
-			if (TryHoverKeyPoint(out dragIndex) && TryDragKeyPoint(dragIndex))
-				return State.Drag;
-			if (TryBoxSelect())
-				return State.BoxSelect;
+				if (TryHoverCurvePoint(out dragIndex) && TryDragCurvePoint(dragIndex))
+					return State.Drag;
+				if (TryHoverKeyPoint(out dragIndex) && TryDragKeyPoint(dragIndex))
+					return State.Drag;
+				if (TryBoxSelect())
+					return State.BoxSelect;
 
-			break;
+				break;
 
 			//Dragging
-		case State.Drag:
-			mouseCursor = MouseCursor.MoveArrow;
-			DrawCircle(keyPoints[dragIndex], clickRadius);
-			if (draggingCurve)
-				MoveCurvePoint(dragIndex, mousePosition - clickPosition);
-			else
-				MoveKeyPoint(dragIndex, mousePosition - clickPosition);
-			if (TryStopDrag())
-				return State.Hover;
-			break;
+			case State.Drag:
+				mouseCursor = MouseCursor.MoveArrow;
+				DrawCircle(keyPoints[dragIndex], clickRadius);
+				if (draggingCurve)
+					MoveCurvePoint(dragIndex, mousePosition - clickPosition);
+				else
+					MoveKeyPoint(dragIndex, mousePosition - clickPosition);
+				if (TryStopDrag())
+					return State.Hover;
+				break;
 
 			//Box Selecting
-		case State.BoxSelect:
-			if (TryBoxSelectEnd())
-				return State.Hover;
-			break;
+			case State.BoxSelect:
+				if (TryBoxSelectEnd())
+					return State.Hover;
+				break;
 
 			//Dragging selected
-		case State.DragSelected:
-			mouseCursor = MouseCursor.MoveArrow;
-			MoveSelected(mousePosition - clickPosition);
-			if (TryStopDrag())
-				return State.Hover;
-			break;
+			case State.DragSelected:
+				mouseCursor = MouseCursor.MoveArrow;
+				MoveSelected(mousePosition - clickPosition);
+				if (TryStopDrag())
+					return State.Hover;
+				break;
 
 			//Rotating selected
-		case State.RotateSelected:
-			mouseCursor = MouseCursor.RotateArrow;
-			RotateSelected();
-			if (TryStopDrag())
-				return State.Hover;
-			break;
+			case State.RotateSelected:
+				mouseCursor = MouseCursor.RotateArrow;
+				RotateSelected();
+				if (TryStopDrag())
+					return State.Hover;
+				break;
 
 			//Scaling selected
-		case State.ScaleSelected:
-			mouseCursor = MouseCursor.ScaleArrow;
-			ScaleSelected();
-			if (TryStopDrag())
-				return State.Hover;
-			break;
+			case State.ScaleSelected:
+				mouseCursor = MouseCursor.ScaleArrow;
+				ScaleSelected();
+				if (TryStopDrag())
+					return State.Hover;
+				break;
 
 			//Extruding
-		case State.Extrude:
-			mouseCursor = MouseCursor.MoveArrow;
-			MoveSelected(mousePosition - clickPosition);
-			if (doExtrudeUpdate && mousePosition != clickPosition)
-			{
-				UpdatePoly(false, false);
-				doExtrudeUpdate = false;
-			}
-			if (TryStopDrag())
-				return State.Hover;
-			break;
+			case State.Extrude:
+				mouseCursor = MouseCursor.MoveArrow;
+				MoveSelected(mousePosition - clickPosition);
+				if (doExtrudeUpdate && mousePosition != clickPosition)
+				{
+					UpdatePoly(false, false);
+					doExtrudeUpdate = false;
+				}
+				if (TryStopDrag())
+					return State.Hover;
+				break;
 		}
 		return state;
 	}
@@ -452,7 +458,7 @@ public class PolyMeshEditor : Editor
 			isCurve[i] = polyMesh.isCurve[i];
 		}
 	}
-	
+
 	void TransformPoly(Matrix4x4 matrix)
 	{
 		for (int i = 0; i < keyPoints.Count; i++)
@@ -461,7 +467,7 @@ public class PolyMeshEditor : Editor
 			curvePoints[i] = matrix.MultiplyPoint(polyMesh.curvePoints[i]);
 		}
 	}
-	
+
 	void UpdatePoly(bool sizeChanged, bool recordUndo)
 	{
 		if (recordUndo)
@@ -914,7 +920,7 @@ public class PolyMeshEditor : Editor
 				curvePoints.Add(Vector3.zero);
 				isCurve.Add(false);
 				isCurve.Add(false);
-				
+
 				selectedIndices.Clear();
 				selectedIndices.Add(keyPoints.Count - 2);
 				selectedIndices.Add(keyPoints.Count - 1);
@@ -930,7 +936,7 @@ public class PolyMeshEditor : Editor
 				curvePoints.Insert(a + 2, Vector3.zero);
 				isCurve.Insert(a + 1, false);
 				isCurve.Insert(a + 2, false);
-				
+
 				selectedIndices.Clear();
 				selectedIndices.Add(a + 1);
 				selectedIndices.Add(a + 2);
@@ -978,7 +984,7 @@ public class PolyMeshEditor : Editor
 	{
 		return Vector3.Distance(mousePosition, point) < HandleUtility.GetHandleSize(point) * clickRadius;
 	}
-	
+
 	int NearestPoint(List<Vector3> points)
 	{
 		var near = -1;
@@ -994,7 +1000,7 @@ public class PolyMeshEditor : Editor
 		}
 		return near;
 	}
-	
+
 	int NearestLine(out Vector3 position)
 	{
 		var near = -1;
@@ -1034,7 +1040,7 @@ public class PolyMeshEditor : Editor
 	{
 		return e.type == EventType.KeyUp && e.keyCode == key;
 	}
-	
+
 	Vector3 Snap(Vector3 value)
 	{
 		value.x = Mathf.Round(value.x / snap) * snap;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -16,6 +16,7 @@ public class PolyMesh : MonoBehaviour
 	public Vector2 uvPosition;
 	public float uvScale = 1;
 	public float uvRotation;
+	public Color vertexColor = Color.white;
 	
 	public List<Vector3> GetEdgePoints()
 	{
@@ -51,12 +52,20 @@ public class PolyMesh : MonoBehaviour
 		
 		//Build the index array
 		var indices = new List<int>();
+		//Build the color array
+		var colors = new List<Color32>();
+		// Convert color once to Color32 for performance
+		Color32 color32 = (Color32) vertexColor; 
+
 		while (indices.Count < points.Count)
+		{
 			indices.Add(indices.Count);
+			colors.Add(color32);
+		}
 
 		//Build the triangle array
 		var triangles = Triangulate.Points(points);
-		
+
 		//Build the uv array
 		var scale = uvScale != 0 ? (1 / uvScale) : 0;
 		var matrix = Matrix4x4.TRS(-uvPosition, Quaternion.Euler(0, 0, uvRotation), new Vector3(scale, scale, 1));
@@ -80,6 +89,7 @@ public class PolyMesh : MonoBehaviour
 		//Update the mesh
 		mesh.Clear();
 		mesh.vertices = vertices;
+		mesh.colors32 = colors.ToArray();
 		mesh.uv = uv;
 		mesh.triangles = triangles;
 		mesh.RecalculateNormals();
